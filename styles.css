@@ -1,0 +1,461 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #333;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Header Styles */
+header {
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    color: white;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+header h1 {
+    font-size: 2.5em;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.game-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.turn-info {
+    font-size: 1.1em;
+    display: flex;
+    gap: 15px;
+}
+
+/* Button Styles */
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+}
+
+.btn-primary:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-secondary {
+    background: white;
+    color: #2c3e50;
+    border: 2px solid #2c3e50;
+}
+
+.btn-secondary:hover {
+    background: #2c3e50;
+    color: white;
+}
+
+/* Game Board Layout */
+.game-board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 30px;
+    align-items: start;
+}
+
+/* Dice Section */
+.dice-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.dice-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+.dice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.dice:hover {
+    transform: scale(1.05);
+}
+
+.dice-face {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border: 3px solid #2c3e50;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.dice.held .dice-face {
+    background: #3498db;
+    border-color: #2980b9;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dice.rolling .dice-face {
+    animation: roll 0.6s ease-in-out;
+}
+
+@keyframes roll {
+    0%, 100% { transform: rotateX(0) rotateY(0); }
+    25% { transform: rotateX(90deg) rotateY(0); }
+    50% { transform: rotateX(180deg) rotateY(90deg); }
+    75% { transform: rotateX(270deg) rotateY(180deg); }
+}
+
+.dice-label {
+    font-size: 0.8em;
+    color: #7f8c8d;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.dice.held .dice-label {
+    color: #3498db;
+    font-weight: 700;
+}
+
+/* Dice Dot Patterns */
+.dot {
+    width: 12px;
+    height: 12px;
+    background: #2c3e50;
+    border-radius: 50%;
+    position: absolute;
+}
+
+.dice.held .dot {
+    background: white;
+}
+
+/* Dice face 1 */
+.dice-face.face-1 .dot:nth-child(1) { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+/* Dice face 2 */
+.dice-face.face-2 .dot:nth-child(1) { top: 20%; left: 20%; }
+.dice-face.face-2 .dot:nth-child(2) { bottom: 20%; right: 20%; }
+
+/* Dice face 3 */
+.dice-face.face-3 .dot:nth-child(1) { top: 20%; left: 20%; }
+.dice-face.face-3 .dot:nth-child(2) { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.dice-face.face-3 .dot:nth-child(3) { bottom: 20%; right: 20%; }
+
+/* Dice face 4 */
+.dice-face.face-4 .dot:nth-child(1) { top: 20%; left: 20%; }
+.dice-face.face-4 .dot:nth-child(2) { top: 20%; right: 20%; }
+.dice-face.face-4 .dot:nth-child(3) { bottom: 20%; left: 20%; }
+.dice-face.face-4 .dot:nth-child(4) { bottom: 20%; right: 20%; }
+
+/* Dice face 5 */
+.dice-face.face-5 .dot:nth-child(1) { top: 20%; left: 20%; }
+.dice-face.face-5 .dot:nth-child(2) { top: 20%; right: 20%; }
+.dice-face.face-5 .dot:nth-child(3) { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+.dice-face.face-5 .dot:nth-child(4) { bottom: 20%; left: 20%; }
+.dice-face.face-5 .dot:nth-child(5) { bottom: 20%; right: 20%; }
+
+/* Dice face 6 */
+.dice-face.face-6 .dot:nth-child(1) { top: 20%; left: 20%; }
+.dice-face.face-6 .dot:nth-child(2) { top: 20%; right: 20%; }
+.dice-face.face-6 .dot:nth-child(3) { top: 50%; left: 20%; }
+.dice-face.face-6 .dot:nth-child(4) { top: 50%; right: 20%; }
+.dice-face.face-6 .dot:nth-child(5) { bottom: 20%; left: 20%; }
+.dice-face.face-6 .dot:nth-child(6) { bottom: 20%; right: 20%; }
+
+.dice-controls {
+    display: flex;
+    gap: 15px;
+}
+
+/* Scorecard Section */
+.scorecard-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.scorecard {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.scorecard th {
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    color: white;
+    padding: 15px 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.scorecard td {
+    padding: 12px;
+    border-bottom: 1px solid #ecf0f1;
+    text-align: left;
+}
+
+.scorecard .score-cell,
+.scorecard .potential-cell {
+    text-align: center;
+    font-weight: 600;
+}
+
+.section-header {
+    background: #34495e;
+    color: white;
+}
+
+.section-header td {
+    padding: 10px 12px;
+    font-weight: 600;
+    border-bottom: none;
+}
+
+.score-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.score-row:hover {
+    background: #e8f4fd;
+}
+
+.score-row.scored {
+    background: #d5f4e6;
+    cursor: default;
+}
+
+.score-row.scored:hover {
+    background: #d5f4e6;
+}
+
+.score-row.available {
+    background: #fff3cd;
+}
+
+.score-row.available:hover {
+    background: #ffeaa7;
+}
+
+.potential-cell {
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.subtotal-row,
+.bonus-row,
+.total-row,
+.grand-total-row {
+    background: #ecf0f1;
+    font-weight: 700;
+}
+
+.grand-total-row {
+    background: linear-gradient(45deg, #27ae60, #2ecc71);
+    color: white;
+}
+
+.grand-total-row td {
+    padding: 15px 12px;
+    font-size: 1.1em;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.3s ease;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 90%;
+}
+
+.modal-content h2 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+.modal-content p {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+    color: #34495e;
+}
+
+#final-score {
+    font-weight: 700;
+    color: #e74c3c;
+    font-size: 1.5em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    header {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+    
+    .game-board {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 20px;
+    }
+    
+    .dice-container {
+        gap: 10px;
+    }
+    
+    .dice-face {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .dot {
+        width: 8px;
+        height: 8px;
+    }
+    
+    .scorecard th,
+    .scorecard td {
+        padding: 8px 6px;
+        font-size: 0.9em;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.9em;
+    }
+    
+    .modal-content {
+        padding: 30px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dice-container {
+        gap: 8px;
+    }
+    
+    .dice-face {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .dice-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .dice-controls .btn {
+        width: 100%;
+    }
+    
+    .scorecard th,
+    .scorecard td {
+        padding: 6px 4px;
+        font-size: 0.8em;
+    }
+}
+
+/* Animation for scoring */
+.score-animation {
+    animation: scoreFlash 0.5s ease-in-out;
+}
+
+@keyframes scoreFlash {
+    0% { background: #f39c12; }
+    50% { background: #e67e22; transform: scale(1.05); }
+    100% { background: inherit; transform: scale(1); }
+}
