@@ -174,6 +174,42 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 @keyframes yatzyFlash{0%{background:rgba(245,197,24,0.4);}100%{background:transparent;}}
 .yatzy-flash{animation:yatzyFlash 0.7s ease;}
 
+/* LEADERBOARD MODAL */
+.lb-modal{max-width:540px;text-align:left;padding:0;position:relative;}
+.lb-modal h2{font-family:'DM Serif Display',serif;font-size:1.8em;padding:28px 28px 0;}
+.lb-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);padding:0 28px;margin-top:16px;}
+.lb-tab{padding:10px 16px;font-size:0.85em;cursor:pointer;border-bottom:2px solid transparent;color:var(--text3);transition:all 0.2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'DM Sans',sans-serif;}
+.lb-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.lb-body{padding:16px 28px 0;min-height:220px;}
+.lb-loading{color:var(--text3);font-size:0.88em;padding:40px 0;text-align:center;}
+.lb-entry{display:grid;grid-template-columns:28px 32px 1fr auto;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.lb-entry:last-child{border-bottom:none;}
+.lb-rank{font-family:'DM Mono',monospace;font-size:0.8em;color:var(--text3);text-align:center;}
+.lb-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;}
+.lb-avatar-initials{width:32px;height:32px;border-radius:50%;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:0.72em;font-weight:500;color:var(--text2);}
+.lb-name{font-size:0.88em;color:var(--text2);}
+.lb-name.me{color:var(--accent2);font-weight:500;}
+.lb-meta{font-size:0.72em;color:var(--text3);margin-top:1px;}
+.lb-score{font-family:'DM Mono',monospace;font-size:1em;font-weight:500;color:var(--text);text-align:right;}
+.lb-score.me{color:var(--accent2);}
+.lb-empty{color:var(--text3);font-size:0.88em;padding:30px 0;text-align:center;}
+.lb-close{position:absolute;top:16px;right:20px;background:none;border:none;color:var(--text3);font-size:1.3em;cursor:pointer;line-height:1;padding:4px 8px;}
+.lb-close:hover{color:var(--text);}
+/* FRIENDS SECTION */
+.friends-section{padding:16px 28px 28px;border-top:1px solid var(--border);margin-top:4px;}
+.friends-label{font-size:0.72em;text-transform:uppercase;letter-spacing:2px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:12px;}
+.friend-code-box{background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:11px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.friend-code-val{font-family:'DM Mono',monospace;font-size:1.1em;letter-spacing:3px;color:var(--accent2);}
+.friend-code-label{font-size:0.72em;color:var(--text3);margin-bottom:2px;}
+.add-friend-row{display:flex;gap:8px;margin-bottom:12px;}
+.add-friend-input{flex:1;background:var(--surface3);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:0.9em;outline:none;letter-spacing:2px;text-transform:uppercase;}
+.add-friend-input:focus{border-color:var(--accent);}
+.friend-entry{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);}
+.friend-entry:last-child{border-bottom:none;}
+.friend-entry-name{flex:1;font-size:0.88em;color:var(--text2);}
+.remove-friend-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.78em;padding:2px 8px;border-radius:4px;transition:all 0.2s;font-family:'DM Sans',sans-serif;border:1px solid var(--border);}
+.remove-friend-btn:hover{color:var(--accent);border-color:var(--accent);}
+
 .hidden{display:none!important;}
 @media(max-width:600px){
   :root{--dice-size:62px;}
@@ -287,6 +323,37 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   </div>
 </div>
 
+<!-- LEADERBOARD MODAL -->
+<div class="modal-backdrop" id="lb-backdrop">
+  <div class="modal lb-modal">
+    <button class="lb-close" id="lb-close-btn">✕</button>
+    <h2>Leaderboard</h2>
+    <div class="lb-tabs">
+      <button class="lb-tab active" data-tab="allTime">All-time</button>
+      <button class="lb-tab" data-tab="weekly">This week</button>
+      <button class="lb-tab" data-tab="friends">Friends</button>
+    </div>
+    <div class="lb-body" id="lb-body"><div class="lb-loading">Loading...</div></div>
+    <div class="friends-section" id="friends-section" style="display:none">
+      <div class="friends-label">Your friend code</div>
+      <div class="friend-code-box">
+        <div>
+          <div class="friend-code-label">Share this with friends</div>
+          <div class="friend-code-val" id="my-friend-code">———</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="copy-code-btn">Copy</button>
+      </div>
+      <div class="friends-label" style="margin-top:4px">Add a friend</div>
+      <div class="add-friend-row">
+        <input class="add-friend-input" id="add-friend-input" placeholder="ENTER CODE" maxlength="6">
+        <button class="btn btn-accent btn-sm" id="add-friend-btn">Add</button>
+      </div>
+      <div class="friends-label">Your friends</div>
+      <div id="friends-list"><div class="lb-empty">No friends added yet</div></div>
+    </div>
+  </div>
+</div>
+
 <div class="toast-container" id="toast-container"></div>
 
 <!-- FIREBASE -->
@@ -294,11 +361,11 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, serverTimestamp, collection, addDoc, query, orderBy, limit, getDocs }
+import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, serverTimestamp,
+         collection, addDoc, query, orderBy, limit, getDocs, where, writeBatch, deleteDoc }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 // ─── FIREBASE CONFIG ──────────────────────────────────────────────────────────
-// TODO: Replace with your actual Firebase config from console.firebase.google.com
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDQE9zo0CS_yV7HTttEMLWXTGgcGXpjD1w",
@@ -310,11 +377,23 @@ const firebaseConfig = {
   measurementId: "G-9Q3J34VL1M"
 };
 
-// Detect if config is still placeholder
 const FIREBASE_READY = FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
-
 let app, auth, db, currentUser = null;
 
+// ─── ISO WEEK ─────────────────────────────────────────────────────────────────
+function getISOWeek() {
+  const now = new Date();
+  const jan4 = new Date(now.getFullYear(), 0, 4);
+  const dayOfYear = Math.ceil((now - new Date(now.getFullYear(), 0, 1)) / 86400000);
+  const weekNum = Math.ceil((dayOfYear + jan4.getDay()) / 7);
+  return `${now.getFullYear()}-W${String(weekNum).padStart(2,'0')}`;
+}
+
+function generateFriendCode() {
+  return Math.random().toString(36).substring(2,8).toUpperCase();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
 if (FIREBASE_READY) {
   app  = initializeApp(FIREBASE_CONFIG);
   auth = getAuth(app);
@@ -323,21 +402,30 @@ if (FIREBASE_READY) {
   onAuthStateChanged(auth, async user => {
     currentUser = user;
     if (user) {
-      // Upsert user profile
       const ref = doc(db, 'users', user.uid);
       const snap = await getDoc(ref);
       if (!snap.exists()) {
+        const code = generateFriendCode();
         await setDoc(ref, {
           displayName: user.displayName,
           avatarUrl:   user.photoURL,
           gamesPlayed: 0,
           highScore:   0,
           totalScore:  0,
+          friendCode:  code,
           joinedAt:    serverTimestamp()
         });
+        // Index friend code for lookup
+        await setDoc(doc(db, 'friendCodes', code), { uid: user.uid });
+      } else if (!snap.data().friendCode) {
+        const code = generateFriendCode();
+        await updateDoc(ref, { friendCode: code });
+        await setDoc(doc(db, 'friendCodes', code), { uid: user.uid });
       }
     }
     renderAuthWidget();
+    // Re-render setup to pre-fill name
+    if (typeof renderSetup === 'function') renderSetup();
   });
 }
 
@@ -348,11 +436,8 @@ window._signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     await signInWithPopup(auth, provider);
     document.getElementById('auth-backdrop').classList.remove('show');
-    toast('Signed in!', 'success');
-  } catch(e) {
-    console.error(e);
-    toast('Sign-in failed', 'warn');
-  }
+    toast('Signed in!','success');
+  } catch(e) { console.error(e); toast('Sign-in failed','warn'); }
 };
 
 window._signOut = async () => {
@@ -360,36 +445,151 @@ window._signOut = async () => {
   await signOut(auth);
   currentUser = null;
   renderAuthWidget();
-  toast('Signed out', 'info');
+  toast('Signed out','info');
 };
 
-// ─── SAVE SCORE TO FIRESTORE ──────────────────────────────────────────────────
+// ─── SAVE SCORE ───────────────────────────────────────────────────────────────
 window._saveScoreToFirestore = async (playerObj, totalScore) => {
   if (!FIREBASE_READY || !currentUser) return;
   try {
-    const userRef = doc(db, 'users', currentUser.uid);
-    await updateDoc(userRef, {
+    const week = getISOWeek();
+    const uid  = currentUser.uid;
+    const ust  = ['ones','twos','threes','fours','fives','sixes']
+                   .reduce((t,c)=>t+(playerObj.scores[c]||0), 0);
+    const entry = {
+      uid,
+      displayName:  currentUser.displayName || 'Anonymous',
+      avatarUrl:    currentUser.photoURL || null,
+      score:        totalScore,
+      yatzyBonuses: playerObj.yatzyBonuses || 0,
+      bonusEarned:  ust >= 63,
+      playedAt:     serverTimestamp()
+    };
+
+    const batch = writeBatch(db);
+
+    // All-time
+    batch.set(doc(collection(db,'leaderboard','allTime','scores')), entry);
+    // Weekly
+    batch.set(doc(collection(db,'leaderboard','weekly',week,'scores')), entry);
+
+    // User stats
+    const userRef = doc(db,'users',uid);
+    const userSnap = await getDoc(userRef);
+    const currentHigh = userSnap.exists() ? (userSnap.data().highScore||0) : 0;
+    batch.update(userRef, {
       gamesPlayed: increment(1),
       totalScore:  increment(totalScore),
-      highScore:   Math.max((await getDoc(userRef)).data().highScore || 0, totalScore)
+      highScore:   Math.max(currentHigh, totalScore),
+      lastPlayed:  serverTimestamp()
     });
-    // leaderboard entry
-    await addDoc(collection(db, 'leaderboard', 'allTime', 'scores'), {
-      uid:         currentUser.uid,
-      displayName: currentUser.displayName,
-      avatarUrl:   currentUser.photoURL,
-      score:       totalScore,
-      yatzyBonuses: playerObj.yatzyBonuses || 0,
-      bonusEarned:  (upperSubtotal(playerObj) >= 63),
-      playedAt:    serverTimestamp()
-    });
-    toast('Score saved to leaderboard!', 'success');
+
+    await batch.commit();
+    toast('Score saved to leaderboard!','success');
   } catch(e) {
-    console.error('Firestore save error:', e);
+    console.error('Firestore save error:',e);
+    toast('Could not save score','warn');
   }
 };
 
-// ─── AUTH WIDGET RENDER ───────────────────────────────────────────────────────
+// ─── LEADERBOARD FETCH ────────────────────────────────────────────────────────
+window._fetchLeaderboard = async (tab) => {
+  if (!FIREBASE_READY) return [];
+  try {
+    let ref;
+    if (tab === 'allTime') {
+      ref = query(collection(db,'leaderboard','allTime','scores'),
+                  orderBy('score','desc'), limit(25));
+    } else if (tab === 'weekly') {
+      const week = getISOWeek();
+      ref = query(collection(db,'leaderboard','weekly',week,'scores'),
+                  orderBy('score','desc'), limit(25));
+    } else if (tab === 'friends') {
+      if (!currentUser) return [];
+      const friendsSnap = await getDocs(collection(db,'users',currentUser.uid,'friends'));
+      const friendUids = friendsSnap.docs.map(d=>d.id);
+      if (friendUids.length === 0) return [];
+      // Fetch each friend's best allTime score
+      const results = [];
+      for (const fuid of friendUids) {
+        const q = query(collection(db,'leaderboard','allTime','scores'),
+                        where('uid','==',fuid), orderBy('score','desc'), limit(1));
+        const s = await getDocs(q);
+        if (!s.empty) results.push({id:s.docs[0].id, ...s.docs[0].data()});
+      }
+      // Also include current user's best
+      const myQ = query(collection(db,'leaderboard','allTime','scores'),
+                        where('uid','==',currentUser.uid), orderBy('score','desc'), limit(1));
+      const myS = await getDocs(myQ);
+      if (!myS.empty) results.push({id:myS.docs[0].id, ...myS.docs[0].data()});
+      return results.sort((a,b)=>b.score-a.score);
+    }
+    const snap = await getDocs(ref);
+    return snap.docs.map(d=>({id:d.id,...d.data()}));
+  } catch(e) { console.error('Leaderboard fetch error:',e); return []; }
+};
+
+// ─── FRIENDS ──────────────────────────────────────────────────────────────────
+window._fetchFriends = async () => {
+  if (!FIREBASE_READY || !currentUser) return [];
+  try {
+    const snap = await getDocs(collection(db,'users',currentUser.uid,'friends'));
+    return snap.docs.map(d=>({uid:d.id,...d.data()}));
+  } catch(e) { return []; }
+};
+
+window._addFriend = async (code) => {
+  if (!FIREBASE_READY || !currentUser) return {error:'Not signed in'};
+  try {
+    const clean = code.trim().toUpperCase();
+    const codeSnap = await getDoc(doc(db,'friendCodes',clean));
+    if (!codeSnap.exists()) return {error:'No player found with that code'};
+    const friendUid = codeSnap.data().uid;
+    if (friendUid === currentUser.uid) return {error:"That's your own code!"};
+    const existing = await getDoc(doc(db,'users',currentUser.uid,'friends',friendUid));
+    if (existing.exists()) return {error:'Already friends'};
+    const friendProfileSnap = await getDoc(doc(db,'users',friendUid));
+    if (!friendProfileSnap.exists()) return {error:'Player profile not found'};
+    const fp = friendProfileSnap.data();
+    const mySnap = await getDoc(doc(db,'users',currentUser.uid));
+    const myData = mySnap.data()||{};
+    const batch = writeBatch(db);
+    batch.set(doc(db,'users',currentUser.uid,'friends',friendUid), {
+      displayName: fp.displayName||'Player',
+      avatarUrl:   fp.avatarUrl||null,
+      friendCode:  clean,
+      addedAt:     serverTimestamp()
+    });
+    batch.set(doc(db,'users',friendUid,'friends',currentUser.uid), {
+      displayName: currentUser.displayName||'Player',
+      avatarUrl:   currentUser.photoURL||null,
+      friendCode:  myData.friendCode||'',
+      addedAt:     serverTimestamp()
+    });
+    await batch.commit();
+    return {success:true, displayName: fp.displayName};
+  } catch(e) { console.error(e); return {error:'Something went wrong'}; }
+};
+
+window._removeFriend = async (friendUid) => {
+  if (!FIREBASE_READY || !currentUser) return;
+  try {
+    const batch = writeBatch(db);
+    batch.delete(doc(db,'users',currentUser.uid,'friends',friendUid));
+    batch.delete(doc(db,'users',friendUid,'friends',currentUser.uid));
+    await batch.commit();
+  } catch(e) { console.error(e); }
+};
+
+window._getMyProfile = async () => {
+  if (!FIREBASE_READY || !currentUser) return null;
+  try {
+    const snap = await getDoc(doc(db,'users',currentUser.uid));
+    return snap.exists() ? snap.data() : null;
+  } catch(e) { return null; }
+};
+
+// ─── AUTH WIDGET ──────────────────────────────────────────────────────────────
 function renderAuthWidget() {
   const w = document.getElementById('auth-widget');
   if (!FIREBASE_READY) {
@@ -397,27 +597,22 @@ function renderAuthWidget() {
     return;
   }
   if (currentUser) {
-    const initials = currentUser.displayName?.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase() || '?';
-    w.innerHTML = currentUser.photoURL
-      ? `<img class="auth-avatar" src="${currentUser.photoURL}" alt="">
-         <span class="auth-name">${currentUser.displayName||'User'}</span>
-         <button class="btn btn-ghost btn-sm" onclick="window._signOut()">Sign out</button>`
-      : `<div class="auth-avatar-initials">${initials}</div>
-         <span class="auth-name">${currentUser.displayName||'User'}</span>
-         <button class="btn btn-ghost btn-sm" onclick="window._signOut()">Sign out</button>`;
+    const initials = (currentUser.displayName||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+    const avatar = currentUser.photoURL
+      ? `<img class="auth-avatar" src="${currentUser.photoURL}" alt="">`
+      : `<div class="auth-avatar-initials">${initials}</div>`;
+    w.innerHTML = `${avatar}
+      <span class="auth-name">${currentUser.displayName||'User'}</span>
+      <button class="btn btn-ghost btn-sm" onclick="window._signOut()">Sign out</button>`;
   } else {
     w.innerHTML = `<button class="btn btn-ghost btn-sm" onclick="document.getElementById('auth-backdrop').classList.add('show')">Sign in</button>`;
   }
 }
 
-// expose for game logic
-window._currentUser = () => currentUser;
+window._currentUser  = () => currentUser;
 window._firebaseReady = () => FIREBASE_READY;
-
-// init widget immediately
 renderAuthWidget();
 
-// ─── AUTH MODAL BUTTONS ───────────────────────────────────────────────────────
 document.getElementById('google-signin-btn').addEventListener('click', window._signInWithGoogle);
 document.getElementById('guest-continue-btn').addEventListener('click', () => {
   document.getElementById('auth-backdrop').classList.remove('show');
@@ -425,11 +620,6 @@ document.getElementById('guest-continue-btn').addEventListener('click', () => {
 document.getElementById('auth-close-btn').addEventListener('click', () => {
   document.getElementById('auth-backdrop').classList.remove('show');
 });
-
-// expose upperSubtotal for module scope
-window._upperSubtotal = (p) => {
-  return ['ones','twos','threes','fours','fives','sixes'].reduce((t,c)=>t+(p.scores[c]||0),0);
-};
 </script>
 
 <script>
@@ -823,7 +1013,7 @@ function scoreCategory(cat, isJoker=false){
 }
 
 function advanceTurn(){
-  if(checkAllDone()){endGame();return;}
+  if(checkAllDone()){window.endGame();return;}
   let nextP=(currentPlayer+1)%players.length;
   let loops=0;
   while(players[nextP].done&&loops<players.length){nextP=(nextP+1)%players.length;loops++;}
@@ -856,15 +1046,13 @@ function undoScore(){
 }
 
 // ─── END GAME ─────────────────────────────────────────────────────────────────
-function endGame(){
+window.endGame = function endGame(){
   const sorted=[...players].sort((a,b)=>grandTotal(b)-grandTotal(a));
   const winner=sorted[0];
   const winnerGt=grandTotal(winner);
 
-  // Save to Firestore if signed in (single player or winner)
-  if(window._saveScoreToFirestore){
-    window._saveScoreToFirestore(winner, winnerGt);
-  }
+  // Save to Firestore if signed in
+  if(window._saveScoreToFirestore) window._saveScoreToFirestore(winner, winnerGt);
 
   let pbMsg='';
   if(!personalBest[winner.name]||winnerGt>personalBest[winner.name]){
@@ -897,8 +1085,25 @@ function endGame(){
   }
 
   document.getElementById('gameover-content').innerHTML=html;
+
+  // Inject leaderboard button into modal actions
+  const actions=document.querySelector('#gameover-backdrop .modal-actions');
+  if(actions){
+    const existing=document.getElementById('view-lb-btn');
+    if(existing) existing.remove();
+    const lbBtn=document.createElement('button');
+    lbBtn.id='view-lb-btn';
+    lbBtn.className='btn btn-ghost';
+    lbBtn.textContent='🏆 Leaderboard';
+    lbBtn.addEventListener('click',()=>{
+      document.getElementById('gameover-backdrop').classList.remove('show');
+      if(typeof openLeaderboard==='function') openLeaderboard();
+    });
+    actions.prepend(lbBtn);
+  }
+
   document.getElementById('gameover-backdrop').classList.add('show');
-}
+};
 
 // ─── HISTORY ──────────────────────────────────────────────────────────────────
 function renderHistory(){
@@ -977,6 +1182,159 @@ document.getElementById('start-btn').addEventListener('click',()=>{
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 renderSetup();
+
+// ─── LEADERBOARD ──────────────────────────────────────────────────────────────
+let lbCurrentTab = 'allTime';
+
+async function openLeaderboard() {
+  document.getElementById('lb-backdrop').classList.add('show');
+  await loadLbTab(lbCurrentTab);
+  if (lbCurrentTab === 'friends') await loadFriendsSection();
+}
+
+async function loadLbTab(tab) {
+  lbCurrentTab = tab;
+
+  // Update tab buttons
+  document.querySelectorAll('.lb-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.tab === tab);
+  });
+
+  // Show/hide friends management section
+  const fs = document.getElementById('friends-section');
+  fs.style.display = tab === 'friends' ? 'block' : 'none';
+  if (tab === 'friends') await loadFriendsSection();
+
+  const body = document.getElementById('lb-body');
+  body.innerHTML = '<div class="lb-loading">Loading...</div>';
+
+  const user = window._currentUser ? window._currentUser() : null;
+
+  if (!window._firebaseReady || !window._firebaseReady()) {
+    body.innerHTML = '<div class="lb-empty">Sign in to view the leaderboard</div>';
+    return;
+  }
+  if (!user && tab !== 'allTime' && tab !== 'weekly') {
+    body.innerHTML = '<div class="lb-empty">Sign in to view friends scores</div>';
+    return;
+  }
+
+  const entries = await window._fetchLeaderboard(tab);
+
+  if (!entries || entries.length === 0) {
+    body.innerHTML = tab === 'friends'
+      ? '<div class="lb-empty">Add friends to see their scores here</div>'
+      : '<div class="lb-empty">No scores yet — be the first!</div>';
+    return;
+  }
+
+  const medals = ['🥇','🥈','🥉'];
+  body.innerHTML = entries.map((e, i) => {
+    const isMe = user && e.uid === user.uid;
+    const rank = medals[i] || `${i+1}`;
+    const initials = (e.displayName||'?').split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+    const avatar = e.avatarUrl
+      ? `<img class="lb-avatar" src="${e.avatarUrl}" alt="">`
+      : `<div class="lb-avatar-initials">${initials}</div>`;
+    const bonusBadge = e.bonusEarned ? ' +B' : '';
+    const yatzyBadge = e.yatzyBonuses > 0 ? ` ⭐×${e.yatzyBonuses}` : '';
+    return `<div class="lb-entry">
+      <div class="lb-rank">${rank}</div>
+      ${avatar}
+      <div>
+        <div class="lb-name${isMe?' me':''}">${e.displayName||'Anonymous'}${isMe?' (you)':''}</div>
+        <div class="lb-meta">${bonusBadge}${yatzyBadge}</div>
+      </div>
+      <div class="lb-score${isMe?' me':''}">${e.score}</div>
+    </div>`;
+  }).join('');
+}
+
+async function loadFriendsSection() {
+  const user = window._currentUser ? window._currentUser() : null;
+  if (!user) {
+    document.getElementById('friends-section').style.display = 'none';
+    return;
+  }
+
+  // Show friend code
+  const profile = await window._getMyProfile();
+  if (profile && profile.friendCode) {
+    document.getElementById('my-friend-code').textContent = profile.friendCode;
+  }
+
+  // Load friends list
+  const friends = await window._fetchFriends();
+  const listEl = document.getElementById('friends-list');
+  if (!friends || friends.length === 0) {
+    listEl.innerHTML = '<div class="lb-empty" style="padding:12px 0">No friends added yet</div>';
+    return;
+  }
+  listEl.innerHTML = friends.map(f => `
+    <div class="friend-entry" id="fe-${f.uid}">
+      <div class="friend-entry-name">${f.displayName||'Player'} <span style="color:var(--text3);font-size:0.8em;font-family:monospace">${f.friendCode||''}</span></div>
+      <button class="remove-friend-btn" onclick="removeFriendUI('${f.uid}')">Remove</button>
+    </div>`).join('');
+}
+
+window.removeFriendUI = async (uid) => {
+  if (!confirm('Remove this friend?')) return;
+  await window._removeFriend(uid);
+  document.getElementById(`fe-${uid}`)?.remove();
+  toast('Friend removed','info');
+  // Reload friends tab scores
+  await loadLbTab('friends');
+};
+
+// Tab click handlers
+document.querySelectorAll('.lb-tab').forEach(b => {
+  b.addEventListener('click', () => loadLbTab(b.dataset.tab));
+});
+
+// Close leaderboard
+document.getElementById('lb-close-btn').addEventListener('click', () => {
+  document.getElementById('lb-backdrop').classList.remove('show');
+});
+document.getElementById('lb-backdrop').addEventListener('click', e => {
+  if (e.target === document.getElementById('lb-backdrop'))
+    document.getElementById('lb-backdrop').classList.remove('show');
+});
+
+// Copy friend code
+document.getElementById('copy-code-btn').addEventListener('click', () => {
+  const code = document.getElementById('my-friend-code').textContent;
+  if (code && code !== '———') {
+    navigator.clipboard.writeText(code).then(() => toast('Friend code copied!','success'));
+  }
+});
+
+// Add friend
+document.getElementById('add-friend-btn').addEventListener('click', async () => {
+  const input = document.getElementById('add-friend-input');
+  const code = input.value.trim().toUpperCase();
+  if (code.length !== 6) { toast('Enter a 6-character code','warn'); return; }
+  const btn = document.getElementById('add-friend-btn');
+  btn.disabled = true; btn.textContent = '...';
+  const result = await window._addFriend(code);
+  btn.disabled = false; btn.textContent = 'Add';
+  if (result.error) { toast(result.error,'warn'); return; }
+  input.value = '';
+  toast(`Added ${result.displayName}!`,'success');
+  await loadFriendsSection();
+  await loadLbTab('friends');
+});
+
+document.getElementById('add-friend-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('add-friend-btn').click();
+});
+
+// Clean up leaderboard button when starting new games
+document.getElementById('replay-same-btn').addEventListener('click', () => {
+  document.getElementById('view-lb-btn')?.remove();
+});
+document.getElementById('new-players-btn').addEventListener('click', () => {
+  document.getElementById('view-lb-btn')?.remove();
+});
 </script>
 </body>
 </html>
