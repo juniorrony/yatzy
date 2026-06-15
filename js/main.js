@@ -183,6 +183,8 @@ document.getElementById('roll-btn').addEventListener('click', doRoll);
 document.getElementById('release-btn').addEventListener('click', releaseAll);
 document.getElementById('undo-btn').addEventListener('click', undoScore);
 
+document.getElementById('lb-header-btn').addEventListener('click', openLeaderboard);
+
 document.getElementById('new-game-btn').addEventListener('click', () => {
   document.getElementById('setup-backdrop').classList.add('show');
   renderSetupModal();
