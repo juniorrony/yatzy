@@ -18,6 +18,7 @@
       <div class="pill">Roll <strong id="hdr-roll">1</strong>/3</div>
       <div class="auth-widget" id="auth-widget"></div>
       <button class="btn btn-ghost btn-sm" id="lb-header-btn">🏆 Leaderboard</button>
+      <button class="btn btn-ghost btn-sm" id="online-btn">🌐 Play online</button>
       <button class="btn btn-ghost btn-sm" id="new-game-btn">New game</button>
     </div>
   </header>
@@ -174,6 +175,86 @@
 </div>
 
 <div class="toast-container" id="toast-container"></div>
+
+<!-- LOBBY MODAL -->
+<div class="modal-backdrop" id="lobby-backdrop">
+  <div class="modal lobby-modal">
+
+    <!-- VIEW 1: Create or Join -->
+    <div id="lobby-create-join">
+      <h2>Play Online</h2>
+      <div class="modal-sub">Create a room or join a friend's</div>
+      <button class="btn btn-accent" id="lobby-create-btn" style="width:100%;padding:14px;margin-bottom:16px">
+        Create a room
+      </button>
+      <div class="or-text">— or join with a code —</div>
+      <div class="add-friend-row" style="margin-top:12px">
+        <input class="add-friend-input" id="lobby-join-input" placeholder="ROOM CODE" maxlength="6">
+        <button class="btn btn-accent btn-sm" id="lobby-join-btn">Join</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="lobby-cancel-create-btn"
+        style="width:100%;margin-top:12px"
+        onclick="document.getElementById('lobby-backdrop').classList.remove('show')">
+        Cancel
+      </button>
+    </div>
+
+    <!-- VIEW 2: Waiting Room -->
+    <div id="lobby-waiting" style="display:none">
+      <h2>Waiting Room</h2>
+      <div class="modal-sub">Share the code or link below</div>
+
+      <div class="room-code-box">
+        <div>
+          <div class="friend-code-label">Room code</div>
+          <div class="friend-code-val" id="room-code-display">——————</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="copy-room-code-btn">Copy code</button>
+      </div>
+
+      <div class="room-link-row">
+        <input class="add-friend-input" id="room-share-link" readonly style="font-size:0.75em;letter-spacing:0">
+        <button class="btn btn-ghost btn-sm" id="copy-room-link-btn">Copy link</button>
+      </div>
+
+      <div class="friends-label" style="margin-top:20px">Players</div>
+      <div id="waiting-players-list" style="margin-bottom:20px"></div>
+
+      <button class="btn btn-accent" id="lobby-start-btn" style="width:100%;padding:12px;display:none">
+        Start game
+      </button>
+      <div id="waiting-for-host-msg" style="color:var(--text3);font-size:0.85em;text-align:center;margin-bottom:12px">
+        Waiting for host to start…
+      </div>
+      <button class="btn btn-ghost btn-sm" id="lobby-leave-btn" style="width:100%;margin-top:8px">
+        Leave room
+      </button>
+    </div>
+
+    <!-- VIEW 3: Online Game -->
+    <div id="lobby-online-game" style="display:none">
+      <div class="online-turn-indicator" id="online-turn-indicator">Loading…</div>
+      <div class="players-bar" id="online-players-bar" style="margin-bottom:16px"></div>
+      <div class="dice-row" id="dice-row" style="margin-bottom:16px"></div>
+      <div class="dice-controls" style="margin-bottom:16px">
+        <button class="btn btn-accent" id="online-roll-btn">Roll dice</button>
+        <button class="btn btn-ghost" id="online-release-btn">Release all</button>
+      </div>
+      <div class="joker-banner" id="joker-banner">
+        ⭐ Bonus Yatzy! Use it as a joker — pick any open category.
+      </div>
+      <div class="suggestion hidden" id="suggestion">
+        <div class="suggestion-label">💡 Best move</div>
+        <div class="suggestion-text" id="suggestion-text"></div>
+      </div>
+      <div class="scorecard-wrap" style="margin-top:16px">
+        <div class="scorecard-header"><span>Your scorecard</span></div>
+        <div id="scorecard-body"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <script type="module" src="js/main.js"></script>
 </body>

@@ -9,6 +9,8 @@ import { toast, confetti, renderPlayersBar, renderHeader,
          flashRow, showGameOverModal } from './ui.js';
 import { openLeaderboard, initLeaderboard } from './leaderboard.js';
 import { openProfile, initProfile }         from './profile.js';
+import { openLobby, initLobby, checkUrlRoomCode, renderOnlineGame, closeLobby } from './lobby.js';
+import { listenToRoom, getRoomCode }         from './multiplayer.js';
 import { FIREBASE_READY, currentUser, onAuthChange,
          signInWithGoogle, signOutUser, saveScore } from './firebase.js';
 
@@ -185,6 +187,7 @@ document.getElementById('release-btn').addEventListener('click', releaseAll);
 document.getElementById('undo-btn').addEventListener('click', undoScore);
 
 document.getElementById('lb-header-btn').addEventListener('click', openLeaderboard);
+document.getElementById('online-btn').addEventListener('click', openLobby);
 
 document.getElementById('new-game-btn').addEventListener('click', () => {
   document.getElementById('setup-backdrop').classList.add('show');
@@ -246,6 +249,16 @@ document.getElementById('auth-close-btn').addEventListener('click', () => {
 onAuthChange(user => {
   renderAuthWidget(user, FIREBASE_READY);
   renderSetupModal();
+  // Handle pending room join after sign-in
+  const pending = sessionStorage.getItem('pendingRoom');
+  if (pending && user) {
+    sessionStorage.removeItem('pendingRoom');
+    openLobby();
+    setTimeout(() => {
+      document.getElementById('lobby-join-input').value = pending;
+      document.getElementById('lobby-join-btn').click();
+    }, 300);
+  }
 });
 
 // ─── LEADERBOARD ──────────────────────────────────────────────────────────────
@@ -263,4 +276,10 @@ document.getElementById('auth-widget').addEventListener('click', e => {
     signOutUser().then(() => toast('Signed out', 'info'));
   }
 });
+
+// ─── LOBBY / MULTIPLAYER ──────────────────────────────────────────────────────
+initLobby();
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
 renderSetupModal();
+checkUrlRoomCode();

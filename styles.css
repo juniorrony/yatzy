@@ -299,3 +299,56 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .auth-avatar:hover, .auth-avatar-initials:hover {
   opacity: 0.85;
 }
+
+/* ─── LOBBY / ONLINE GAME ────────────────────────────────────────────────── */
+.lobby-modal {
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  text-align: left;
+}
+.room-code-box {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.room-link-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.waiting-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.waiting-player:last-child { border-bottom: none; }
+.waiting-player-name {
+  font-size: 0.9em;
+  color: var(--text2);
+}
+.online-turn-indicator {
+  text-align: center;
+  font-size: 1em;
+  font-weight: 500;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.online-turn-indicator.my-turn {
+  background: rgba(6, 214, 160, 0.1);
+  color: var(--green);
+  border: 1px solid rgba(6, 214, 160, 0.25);
+}
+.online-turn-indicator.their-turn {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text3);
+  border: 1px solid var(--border);
+}
