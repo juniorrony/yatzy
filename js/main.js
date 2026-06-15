@@ -8,6 +8,7 @@ import { toast, confetti, renderPlayersBar, renderHeader,
          renderBonusMeter, renderAuthWidget, renderHistory,
          flashRow, showGameOverModal } from './ui.js';
 import { openLeaderboard, initLeaderboard } from './leaderboard.js';
+import { openProfile, initProfile }         from './profile.js';
 import { FIREBASE_READY, currentUser, onAuthChange,
          signInWithGoogle, signOutUser, saveScore } from './firebase.js';
 
@@ -241,13 +242,6 @@ document.getElementById('auth-close-btn').addEventListener('click', () => {
   document.getElementById('auth-backdrop').classList.remove('show');
 });
 
-// Sign out (delegated — button is injected dynamically)
-document.getElementById('auth-widget').addEventListener('click', e => {
-  if (e.target.id === 'signout-btn') {
-    signOutUser().then(() => toast('Signed out', 'info'));
-  }
-});
-
 // ─── AUTH STATE ───────────────────────────────────────────────────────────────
 onAuthChange(user => {
   renderAuthWidget(user, FIREBASE_READY);
@@ -257,5 +251,16 @@ onAuthChange(user => {
 // ─── LEADERBOARD ──────────────────────────────────────────────────────────────
 initLeaderboard();
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
+// ─── PROFILE ──────────────────────────────────────────────────────────────────
+initProfile();
+
+// Clicking avatar/name in auth widget opens profile
+document.getElementById('auth-widget').addEventListener('click', e => {
+  if (e.target.closest('.auth-avatar, .auth-avatar-initials, .auth-name')) {
+    openProfile();
+  }
+  if (e.target.id === 'signout-btn') {
+    signOutUser().then(() => toast('Signed out', 'info'));
+  }
+});
 renderSetupModal();
