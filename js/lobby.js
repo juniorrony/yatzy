@@ -4,6 +4,7 @@ import { createRoom, joinRoom, listenToRoom, leaveRoom,
          mpRoll, mpToggleHold, mpReleaseAll,
          mpScoreCategory, mpStartGame, deleteRoom,
          startHeartbeat, stopHeartbeat, getRoomCode }  from './multiplayer.js';
+import { enterQueue, cancelQueue, isSearching }        from './matchmaking.js';
 import { renderDice, animateDice }                     from './dice.js';
 import { renderScorecard, renderJokerBanner,
          renderSuggestion }                            from './scorecard.js';
@@ -23,9 +24,46 @@ let _lastRoom      = null;   // latest room snapshot for UI use
 function showModal(id)  { document.getElementById(id)?.classList.add('show'); }
 function hideModal(id)  { document.getElementById(id)?.classList.remove('show'); }
 function setLobbyView(id) {
-  ['lobby-create-join','lobby-waiting','lobby-online-game'].forEach(v => {
+  ['lobby-create-join','lobby-searching','lobby-waiting','lobby-online-game'].forEach(v => {
     document.getElementById(v).style.display = v === id ? '' : 'none';
   });
+}
+
+// ─── RANDOM MATCH ─────────────────────────────────────────────────────────────
+async function handleRandomMatch() {
+  const user = currentUser();
+  if (!user) {
+    document.getElementById('auth-backdrop').classList.add('show');
+    return;
+  }
+  setLobbyView('lobby-searching');
+  document.getElementById('search-status').textContent = 'Searching for an opponent…';
+
+  const result = await enterQueue(
+    // onMatched
+    async (roomCode, isHost) => {
+      document.getElementById('search-status').textContent = 'Opponent found!';
+      await new Promise(r => setTimeout(r, 600)); // brief pause so user sees it
+      if (isHost) {
+        // Host already created room via matchmaking — go straight to waiting room
+        _myPlayerIndex = 0;
+      } else {
+        // Non-host: we just need to find our index
+        _myPlayerIndex = 1; // simplification for 2-player random matches
+      }
+      enterWaitingRoom(roomCode);
+    },
+    // onCancelled
+    (reason) => {
+      setLobbyView('lobby-create-join');
+      if (reason) toast(reason, 'info');
+    }
+  );
+
+  if (result?.error) {
+    toast(result.error, 'warn');
+    setLobbyView('lobby-create-join');
+  }
 }
 
 // ─── OPEN LOBBY ───────────────────────────────────────────────────────────────
@@ -233,6 +271,7 @@ async function handleOnlineGameOver(players, room) {
 // ─── CLOSE / CLEANUP ──────────────────────────────────────────────────────────
 export function closeLobby() {
   stopHeartbeat();
+  if (isSearching()) cancelQueue();
   leaveRoom();
   if (_unsubscribe) { _unsubscribe(); _unsubscribe = null; }
   hideModal('lobby-backdrop');
@@ -278,7 +317,16 @@ export function checkUrlRoomCode() {
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 export function initLobby() {
-  // Create
+  // Random match
+  document.getElementById('lobby-random-btn').addEventListener('click', handleRandomMatch);
+
+  // Cancel search
+  document.getElementById('cancel-search-btn').addEventListener('click', async () => {
+    await cancelQueue();
+    setLobbyView('lobby-create-join');
+  });
+
+  // Create private room
   document.getElementById('lobby-create-btn').addEventListener('click', handleCreate);
 
   // Join

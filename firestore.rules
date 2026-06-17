@@ -80,3 +80,15 @@ service cloud.firestore {
       || (data.keys().hasAll(['playerUids']) && uid in data.playerUids);
   }
 }
+
+    // ── MATCHMAKING QUEUE ──────────────────────────────────────────
+    match /matchmaking/{uid} {
+      // Only you can read/write your own queue entry
+      allow read:   if request.auth != null;
+      allow create: if request.auth.uid == uid
+                    && request.resource.data.status == 'waiting'
+                    && request.resource.data.keys().hasAll(['uid','displayName','status','joinedAt']);
+      allow update: if request.auth.uid == uid
+                    || request.auth != null; // matched player writes roomCode
+      allow delete: if request.auth != null; // either player can clean up
+    }
