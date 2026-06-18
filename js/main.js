@@ -50,7 +50,7 @@ function render() {
 
 // ─── DICE ACTIONS ─────────────────────────────────────────────────────────────
 function doRoll() {
-  if (roll > 3 || players[currentPlayer]?.done) return;
+  if (roll >= 3 || players[currentPlayer]?.done) return;
   dice = rollDice(dice, held);
   roll++;
   playRoll();
@@ -157,7 +157,7 @@ function advanceTurn() {
     loops++;
   }
   currentPlayer = nextP;
-  turn = Object.keys(players[currentPlayer].scores).length + 1;
+  turn++;
   dice = [1, 1, 1, 1, 1];
   held = [false, false, false, false, false];
   roll = 1;
@@ -206,7 +206,6 @@ function startGame(names) {
   undoState     = null;
   gameHistory   = [];
   _timerEnabled = names.length > 1;
-  stopTimer();
   document.getElementById('setup-backdrop').classList.remove('show');
   document.getElementById('gameover-backdrop').classList.remove('show');
   document.getElementById('undo-btn').disabled = true;
@@ -360,7 +359,8 @@ onAuthChange(user => {
     setTimeout(() => {
       document.getElementById('lobby-join-input').value = pending;
       document.getElementById('lobby-join-btn').click();
-    }, 300);
+      toast('Joining room from previous session', 'info');
+    }, 500);
   }
 });
 

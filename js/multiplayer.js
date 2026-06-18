@@ -138,7 +138,7 @@ export function leaveRoom() {
 
 // ─── GAME ACTIONS (write to Firestore) ───────────────────────────────────────
 export async function mpRoll(roomCode, currentDice, heldDice, currentRoll) {
-  if (currentRoll > 3) return;
+  if (currentRoll >= 3) return;
   const newDice = rollDice(currentDice, heldDice);
   const db = getDB();
   await updateDoc(doc(db, 'rooms', roomCode), {
@@ -208,10 +208,6 @@ export async function mpScoreCategory(roomCode, playerIndex, playerData, cat, sc
     held:               [false,false,false,false,false],
     lastActionAt:       serverTimestamp(),
   });
-
-  // Auto-roll for next player (roll=1)
-  const newDice = rollDice([1,1,1,1,1], [false,false,false,false,false]);
-  await updateDoc(ref, { dice: newDice, roll: 1 });
 
   return { finished: false, nextIndex };
 }

@@ -297,9 +297,9 @@ class YatzyGame {
         
         // Update roll button
         const rollBtn = document.getElementById('roll-btn');
-        if (this.currentRoll > 3) {
+        if (this.currentRoll >= 3) {
             rollBtn.textContent = 'Select Category';
-            rollBtn.disabled = true;
+            rollBtn.disabled = false;
         } else {
             rollBtn.textContent = `Roll Dice (${this.currentRoll}/3)`;
             rollBtn.disabled = false;

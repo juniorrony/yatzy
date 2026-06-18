@@ -54,4 +54,46 @@ Simply open `index.html` in your web browser to start playing!
 - Responsive design for all screen sizes
 - Local game state management
 
+## Online Playing
+
+Yatzy supports online multiplayer gameplay with the following features:
+
+- **Multiplayer Support**: Play with up to 4 players simultaneously
+- **Room System**: Create private rooms with unique 6-character codes or join existing rooms
+- **Random Matchmaking**: Automatically find opponents when you want to play
+- **Real-time Synchronization**: All game state changes are synchronized across all players in real-time
+- **Firebase Integration**: Uses Google Firebase for authentication, data storage, and real-time database
+- **Turn Timer**: 60-second timer for multiplayer turns to keep games moving
+- **Leaderboard**: Track your scores globally, weekly, and against friends
+- **Friend System**: Add friends using unique friend codes to play together
+
+### How Online Play Works
+
+1. **Sign in**: Use Google authentication to create your profile and save scores
+2. **Choose Game Type**: Select between single-player or multiplayer mode
+3. **Find or Create**: Create a private room, join a friend's room, or use random matchmaking
+4. **Play Together**: Take turns rolling dice, holding dice, and scoring categories
+5. **Track Progress**: View your personal best scores and compare with friends on the leaderboard
+
+### Online Features
+
+- **Cross-Platform**: Play on desktop, tablet, or mobile devices
+- **Persistent Scores**: Your scores are saved and tracked across sessions
+- **Social Features**: Add friends, share room codes, and compete on leaderboards
+- **Smooth Experience**: Real-time updates ensure all players stay synchronized
+
+Enjoy your game of Yatzy, whether you're playing solo or with friends online!
+
+## Getting Started
+
+Simply open `index.html` in your web browser to start playing!
+
+## Game Controls
+
+- **Click Dice**: Hold or release dice between rolls
+- **Roll Dice**: Roll all non-held dice
+- **Release All**: Release all held dice
+- **Click Category**: Score your dice in that category
+- **New Game**: Start a fresh game
+
 Enjoy your game of Yatzy!

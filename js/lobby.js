@@ -1,4 +1,4 @@
-import { currentUser, FIREBASE_READY, saveScore }     from './firebase.js';
+import { currentUser, FIREBASE_READY, saveScore, getDB }     from './firebase.js';
 import { toast, confetti, showGameOverModal }          from './ui.js';
 import { createRoom, joinRoom, listenToRoom, leaveRoom,
          mpRoll, mpToggleHold, mpReleaseAll,
@@ -48,8 +48,17 @@ async function handleRandomMatch() {
         // Host already created room via matchmaking — go straight to waiting room
         _myPlayerIndex = 0;
       } else {
-        // Non-host: we just need to find our index
-        _myPlayerIndex = 1; // simplification for 2-player random matches
+        // Non-host: find our index by querying the room
+        const user = currentUser();
+        if (user) {
+          const db = getDB();
+          const roomRef = doc(db, 'rooms', roomCode);
+          const roomSnap = await getDoc(roomRef);
+          if (roomSnap.exists()) {
+            const playerUids = roomSnap.data().playerUids || [];
+            _myPlayerIndex = playerUids.indexOf(user.uid);
+          }
+        }
       }
       enterWaitingRoom(roomCode);
     },
@@ -119,7 +128,7 @@ function enterWaitingRoom(code) {
       const waitMsg  = document.getElementById('waiting-for-host-msg');
       startBtn.style.display = isHost ? '' : 'none';
       waitMsg.style.display  = isHost ? 'none' : '';
-      startBtn.disabled = players.length < 2;
+      startBtn.disabled = players.length <= 1;
     }
 
     if (room.status === 'playing') {
@@ -178,9 +187,10 @@ export function renderOnlineGame(room, players) {
   indicator.className = 'online-turn-indicator' + (isMyTurn ? ' my-turn' : ' their-turn');
 
   // Dice — only interactive on your turn and after first roll
+  const roomCode = getRoomCode();
   renderDice(dice, held, (i) => {
-    if (!isMyTurn || roll < 1) return;
-    mpToggleHold(code, held, i);
+    if (!isMyTurn || roll < 1 || !roomCode) return;
+    mpToggleHold(roomCode, held, i);
   });
 
   // Roll button
@@ -194,13 +204,13 @@ export function renderOnlineGame(room, players) {
   document.getElementById('online-release-btn').style.display = isMyTurn ? '' : 'none';
 
   // Scorecard for current player being viewed (default: you)
-  if (myP) {
-    renderScorecard(myP, dice, roll, (cat, isJoker) => {
+  if (myP && myP.scores) {
+  renderScorecard(myP, dice, roll, (cat, isJoker) => {
       if (!isMyTurn || roll < 1) { toast("It's not your turn", 'info'); return; }
       handleOnlineScore(code, cat, isJoker, room, players);
     });
-    renderJokerBanner(myP, dice, roll);
-    renderSuggestion(myP, dice, roll);
+    if (myP.scores) renderJokerBanner(myP, dice, roll);
+    if (myP.scores) renderSuggestion(myP, dice, roll);
   }
 
   // Players tabs
@@ -333,6 +343,7 @@ export function initLobby() {
   document.getElementById('lobby-join-btn').addEventListener('click', () => {
     const code = document.getElementById('lobby-join-input').value.trim().toUpperCase();
     if (code.length !== 6) { toast('Enter a 6-character room code', 'warn'); return; }
+    if (!/^[A-HJ-NP-Z2-9]{6}$/.test(code)) { toast('Invalid room code format', 'warn'); return; }
     handleJoin(code);
   });
   document.getElementById('lobby-join-input').addEventListener('keydown', e => {
