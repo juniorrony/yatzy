@@ -81,6 +81,8 @@ async function upsertUserProfile(user) {
  
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
 export function currentUser() { return _currentUser; }
+
+export function getDB() { return db; }
  
 export function onAuthChange(fn) {
   _authListeners.push(fn);
