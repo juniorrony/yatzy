@@ -4,7 +4,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup,
 import { getFirestore, doc, setDoc, getDoc, updateDoc,
          increment, serverTimestamp, collection,
          query, orderBy, limit, getDocs, where,
-         writeBatch, deleteDoc, runTransaction }      from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+         writeBatch, deleteDoc }                      from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 // Replace all values below with your project's Firebase config.
@@ -27,11 +27,11 @@ const FIREBASE_CONFIG = {
 };
 
 export const FIREBASE_READY = FIREBASE_CONFIG.apiKey !== 'YOUR_API_KEY';
-
+ 
 let app, auth, db;
 let _currentUser = null;
 const _authListeners = [];
-
+ 
 function getISOWeek() {
   const now    = new Date();
   const jan4   = new Date(now.getFullYear(), 0, 4);
@@ -39,42 +39,29 @@ function getISOWeek() {
   const weekNum = Math.ceil((doy + jan4.getDay()) / 7);
   return `${now.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
 }
-
+ 
 function generateFriendCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
-
+ 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 if (FIREBASE_READY) {
   app  = initializeApp(FIREBASE_CONFIG);
   auth = getAuth(app);
   db   = getFirestore(app);
-
+ 
   onAuthStateChanged(auth, async user => {
     _currentUser = user;
     if (user) await upsertUserProfile(user);
     _authListeners.forEach(fn => fn(user));
   });
 }
-
+ 
 async function upsertUserProfile(user) {
   const ref  = doc(db, 'users', user.uid);
   const snap = await getDoc(ref);
   if (!snap.exists()) {
-    let code;
-    let attempts = 0;
-    const maxAttempts = 10;
-    
-    do {
-      code = generateFriendCode();
-      const codeSnap = await getDoc(doc(db, 'friendCodes', code));
-      attempts++;
-    } while (codeSnap.exists() && attempts < maxAttempts);
-    
-    if (codeSnap.exists()) {
-      throw new Error('Failed to generate unique friend code after multiple attempts');
-    }
-    
+    const code = generateFriendCode();
     await setDoc(ref, {
       displayName: user.displayName,
       avatarUrl:   user.photoURL,
@@ -86,34 +73,21 @@ async function upsertUserProfile(user) {
     });
     await setDoc(doc(db, 'friendCodes', code), { uid: user.uid });
   } else if (!snap.data().friendCode) {
-    let code;
-    let attempts = 0;
-    const maxAttempts = 10;
-    
-    do {
-      code = generateFriendCode();
-      const codeSnap = await getDoc(doc(db, 'friendCodes', code));
-      attempts++;
-    } while (codeSnap.exists() && attempts < maxAttempts);
-    
-    if (codeSnap.exists()) {
-      throw new Error('Failed to generate unique friend code after multiple attempts');
-    }
-    
+    const code = generateFriendCode();
     await updateDoc(ref, { friendCode: code });
     await setDoc(doc(db, 'friendCodes', code), { uid: user.uid });
   }
 }
-
+ 
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
 export function currentUser() { return _currentUser; }
-
+ 
 export function onAuthChange(fn) {
   _authListeners.push(fn);
   // Fire immediately if already resolved
   if (_currentUser !== null || !FIREBASE_READY) fn(_currentUser);
 }
-
+ 
 export async function signInWithGoogle() {
   if (!FIREBASE_READY) return { error: 'Firebase not configured' };
   try {
@@ -125,12 +99,12 @@ export async function signInWithGoogle() {
     return { error: e.message };
   }
 }
-
+ 
 export async function signOutUser() {
   if (!FIREBASE_READY) return;
   await signOut(auth);
 }
-
+ 
 // ─── SCORE SAVE ───────────────────────────────────────────────────────────────
 export async function saveScore(playerObj, totalScore, upperTotal) {
   if (!FIREBASE_READY || !_currentUser) return { skipped: true };
@@ -146,37 +120,44 @@ export async function saveScore(playerObj, totalScore, upperTotal) {
       bonusEarned:  upperTotal >= 63,
       playedAt:     serverTimestamp(),
     };
-
-    // Use transaction for atomic operations to prevent race conditions
-    await runTransaction(db, async (transaction) => {
-      const userRef  = doc(db, 'users', uid);
-      const userSnap = await getDoc(transaction, userRef);
-      const userData = userSnap.exists() ? userSnap.data() : {};
-      const curHigh  = userData.highScore || 0;
-
-      // Write to leaderboards
-      const allTimeRef = doc(collection(db, 'leaderboard', 'allTime', 'scores'));
-      const weeklyRef  = doc(collection(db, 'weeklyScores', week, 'scores'));
-      
-      transaction.set(allTimeRef, entry);
-      transaction.set(weeklyRef, { ...entry, week });
-      
-      // Update user profile atomically
-      transaction.update(userRef, {
-        gamesPlayed: increment(1),
-        totalScore:  increment(totalScore),
-        highScore:   Math.max(curHigh, totalScore),
-        lastPlayed:  serverTimestamp(),
-      });
+ 
+    const batch      = writeBatch(db);
+    const userRef    = doc(db, 'users', uid);
+    const userSnap   = await getDoc(userRef);
+    const curHigh    = userSnap.exists() ? (userSnap.data().highScore || 0) : 0;
+ 
+    // ── All-time: one doc per user (uid = doc ID), only update if new high ──
+    const allTimeRef  = doc(db, 'leaderboard', 'allTime', 'scores', uid);
+    const allTimeSnap = await getDoc(allTimeRef);
+    const prevAllTime = allTimeSnap.exists() ? (allTimeSnap.data().score || 0) : 0;
+    if (totalScore > prevAllTime) {
+      batch.set(allTimeRef, entry);
+    }
+ 
+    // ── Weekly: one doc per user per week, only update if new weekly high ──
+    const weeklyRef  = doc(db, 'weeklyScores', week, 'scores', uid);
+    const weeklySnap = await getDoc(weeklyRef);
+    const prevWeekly = weeklySnap.exists() ? (weeklySnap.data().score || 0) : 0;
+    if (totalScore > prevWeekly) {
+      batch.set(weeklyRef, { ...entry, week });
+    }
+ 
+    // ── User stats: always update ──
+    batch.update(userRef, {
+      gamesPlayed: increment(1),
+      totalScore:  increment(totalScore),
+      highScore:   Math.max(curHigh, totalScore),
+      lastPlayed:  serverTimestamp(),
     });
-    
+ 
+    await batch.commit();
     return { success: true };
   } catch (e) {
     console.error('Firestore save error:', e);
     return { error: e.message };
   }
 }
-
+ 
 // ─── LEADERBOARD FETCH ────────────────────────────────────────────────────────
 export async function fetchLeaderboard(tab) {
   if (!FIREBASE_READY) return [];
@@ -186,51 +167,42 @@ export async function fetchLeaderboard(tab) {
       const snap = await getDocs(q);
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
     }
-
+ 
     if (tab === 'weekly') {
       const week = getISOWeek();
       const q    = query(collection(db, 'weeklyScores', week, 'scores'), orderBy('score', 'desc'), limit(25));
       const snap = await getDocs(q);
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
     }
-
+ 
     if (tab === 'friends') {
       if (!_currentUser) return [];
       const friendsSnap = await getDocs(collection(db, 'users', _currentUser.uid, 'friends'));
       const friendUids  = friendsSnap.docs.map(d => d.id);
       if (friendUids.length === 0) return [];
-
+ 
       const results = [];
-      
-      // Execute all friend queries in parallel for better performance
-      const friendQueries = friendUids.map(fuid =>
-        query(collection(db, 'leaderboard', 'allTime', 'scores'),
-              where('uid', '==', fuid), orderBy('score', 'desc'), limit(1))
-      );
-      
-      const friendSnapshots = await Promise.all(friendQueries.map(q => getDocs(q)));
-      
-      friendSnapshots.forEach((snap, index) => {
-        if (!snap.empty) {
-          results.push({ id: snap.docs[0].id, ...snap.docs[0].data() });
-        }
-      });
-      
-      // Include self - execute in parallel with friend queries
+      for (const fuid of friendUids) {
+        const q = query(collection(db, 'leaderboard', 'allTime', 'scores'),
+                        where('uid', '==', fuid), orderBy('score', 'desc'), limit(1));
+        const s = await getDocs(q);
+        if (!s.empty) results.push({ id: s.docs[0].id, ...s.docs[0].data() });
+      }
+      // Include self
       const myQ = query(collection(db, 'leaderboard', 'allTime', 'scores'),
                         where('uid', '==', _currentUser.uid), orderBy('score', 'desc'), limit(1));
       const myS = await getDocs(myQ);
       if (!myS.empty) results.push({ id: myS.docs[0].id, ...myS.docs[0].data() });
       return results.sort((a, b) => b.score - a.score);
     }
-
+ 
     return [];
   } catch (e) {
     console.error('Leaderboard fetch error:', e);
     return [];
   }
 }
-
+ 
 // ─── FRIENDS ──────────────────────────────────────────────────────────────────
 export async function fetchFriends() {
   if (!FIREBASE_READY || !_currentUser) return [];
@@ -239,7 +211,7 @@ export async function fetchFriends() {
     return snap.docs.map(d => ({ uid: d.id, ...d.data() }));
   } catch (e) { return []; }
 }
-
+ 
 export async function addFriend(code) {
   if (!FIREBASE_READY || !_currentUser) return { error: 'Not signed in' };
   try {
@@ -272,7 +244,7 @@ export async function addFriend(code) {
     return { success: true, displayName: fp.displayName };
   } catch (e) { console.error(e); return { error: 'Something went wrong' }; }
 }
-
+ 
 export async function removeFriend(friendUid) {
   if (!FIREBASE_READY || !_currentUser) return;
   try {
@@ -282,7 +254,7 @@ export async function removeFriend(friendUid) {
     await batch.commit();
   } catch (e) { console.error(e); }
 }
-
+ 
 export async function getMyProfile() {
   if (!FIREBASE_READY || !_currentUser) return null;
   try {
@@ -290,3 +262,4 @@ export async function getMyProfile() {
     return snap.exists() ? snap.data() : null;
   } catch (e) { return null; }
 }
+ 
